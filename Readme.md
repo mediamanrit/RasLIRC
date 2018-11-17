@@ -9,7 +9,7 @@
 
 RasLIRC came from my need to have OpenHAB control multiple devices in my home office, which can only be controlled through IR.  While OpenHAB can have LIRC running on it directly, I instead opted to build multiple remote devices to do the IR work for OpenHAB.
 
-As I attempted to learn how to do this, there were lots of different resources, many saying things that were contradictory to each other.  Further complicating matters, they all were for old versions of LIRC, and the newer versions require slightly different configuration tasks.
+As I attempted to learn how to do this, there were lots of different resources, many saying things that were contradictory to each other.  Further complicating matters, they all were for old versions of LIRC, and the newer versions (I'm using 0.9.4c) require slightly different configuration tasks.
 
 This process will explain:
   * How to build the Raspberry Pi Hardware
