@@ -1,0 +1,73 @@
+---
+- name: RasLIRC Wired
+  hosts: localhost
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Set the timezone
+      file:
+        src: /usr/share/zoneinfo/America/New_York
+        dest: /etc/localtime
+        state: link
+
+    - name: Update package repo
+      apt: update_cache=yes
+    - name: Upgrade all instaled packages
+      apt: upgrade=dist
+
+    - name: Disable bluetooth LE services
+      systemd:
+        name: bluetooth
+        enabled: no
+        state: stopped
+
+    - name: Install lirc
+      apt:
+        name: lirc
+        state: present
+
+    - name: Work on lirc_options.conf (device)
+      lineinfile:
+        dest: /etc/lirc/lirc_options.conf
+        regexp: '^device.*= auto$'
+        line: 'device = /dev/lirc0'
+        backrefs: yes
+    - name: Work on lirc_options.conf (driver)
+      lineinfile:
+        dest: /etc/lirc/lirc_options.conf
+        regexp: '^driver.*= devinput$'
+        line: 'driver = default'
+        backrefs: yes
+    - name: Work on lirc_options.conf (listen)
+      lineinfile:
+        dest: /etc/lirc/lirc_options.conf
+        regexp: '^#listen.*=.*$'
+        line: 'listen = 0.0.0.0:8765'
+        backrefs: yes
+
+    - name: Check if devinput config is enabled
+      stat:
+        path: /etc/lirc/lircd.conf.d/devinput.lircd.conf
+      register: stat_result
+
+    - name: If devinput is enabled, rename it to disable it
+      command: /bin/mv /etc/lirc/lircd.conf.d/devinput.lircd.conf /etc/lirc/lircd.conf.d/devinput.lircd.conf.dist
+      when: stat_result.stat.exists == True 
+
+    - name: Configure Boot (lirc config)
+      lineinfile:
+        dest: /boot/config.txt
+        line: dtoverlay=lirc-rpi,gpio_in_pin=11,gpio_out_pin=25
+        state: present
+        create: yes
+    - name: Configure Boot (disable wireless devices)
+      lineinfile:
+        dest: /boot/config.txt
+        line: dtoverlay=pi3-disable-wifi,pi3-disable-bt
+        state: present
+        create: yes
+
+    - name: Reboot the server
+      command: /sbin/reboot
+
