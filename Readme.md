@@ -84,7 +84,7 @@ After the first boot of the Raspberry Pi, we're ready to get going:
 3. Type `sudo apt-get install ansible`.  This will download the Ansible tool, which we will use to configure the rest of the device.  You will get prompted for your password, then again to confirm the installation.  It will install a lot more then Ansible since Ansible itself has many dependencies.
 
 ## LIRC Config
-1. Download the Ansible playbook I made (in this repository) for installing and configuring everything else.  Type `wget this`.
+1. Download the Ansible playbook I made (in this repository) for installing and configuring everything else.  Type `wget https://raw.githubusercontent.com/mediamanrit/RasLIRC/master/RasLIRC-Wired.yaml`.
 2. Lastly, run the playbook by typing `ansible-playbook RasLIRC-Wired.yaml`.  This will perform many steps, and list out each one as it goes.  When it's complete, it should reboot the pi.  If not, type `sudo reboot`.
 
 LIRC is now installed, and in theory running!  Now, what do you do with it?  Remember, this guide is intended to have LIRC control a device.  That means you now need to give it IR codes to use for those devices.  The simplest method is to look in one of the remote control databases like [this one](https://sourceforge.net/p/lirc-remotes/code/ci/master/tree/remotes/) .  Remember that often times manufacturers use IR codes over and over again.  So while your particular remote control model may not be there, a similar one from the same manufacturer may work perfectly fine.
