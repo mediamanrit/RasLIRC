@@ -74,6 +74,6 @@ So when the Office_TV1_Remote_Control virtual item gets a command from my interf
 ## Control Interface
 My control for all of this is a Kindle Fire HD 10 with the Fully Kiosk browser.  It displays the HabPanel UI that comes with OpenHAB.  To hold it up and charge it, I use the new Show Mode Charging Dock.
 
-IMAGE HERE
+![Tablet Photo](https://raw.githubusercontent.com/mediamanrit/RasLIRC/master/Resources/Tablet%20UI.jpg)
 
 

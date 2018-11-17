@@ -39,6 +39,7 @@ This is the longest list.  This is the list of electronics I used to make the IR
   * [Adafruit Perma-Proto Hat](https://www.adafruit.com/product/2310)
   * [IR Receiver Sensor - TSOP38238](https://www.adafruit.com/product/157)
   * [NPN Transistors](https://www.adafruit.com/product/756)
+  * [10k Ohm Resistor](https://www.adafruit.com/product/2784)
   * [1/8" Panel Mount Jack](https://www.adafruit.com/product/3692)
   * [Stranded Wire](https://www.adafruit.com/product/3111)  
   * [Solid Wire](https://www.adafruit.com/product/1311) (Note that you could do the whole project with stranded wire, but I use both)
@@ -48,12 +49,20 @@ This is the longest list.  This is the list of electronics I used to make the IR
 
 1. Start with the basics.  Put the Raspberry Pi in the case.
 2. Assemble the circuit board / Perma-Proto Hat.  This took me 10-20 minutes.  For starters, here's a closeup image of the board:
-IMAGE HERE
+
+![Inside photo](https://github.com/mediamanrit/RasLIRC/raw/master/Resources/Inside%20Case.jpg)
+
+![Board Close-up](https://github.com/mediamanrit/RasLIRC/raw/master/Resources/Board%20Close-Up.jpg)
+
 And here is the circuit diagram
-IMAGE HERE
+
+![Schematic](https://github.com/mediamanrit/RasLIRC/raw/master/Resources/RasLIRC%20Schematic.png)
+
 3. Place the Hat on the Raspberry Pi, making sure to make sure all 40 pins make contact.
 4. Drill holes in the cover for the 1/8" jacks, as well as a hole directly over where the IR receiver is (for when you want to learn IR codes).
-IMAGE HERE
+
+![Case Photo](https://github.com/mediamanrit/RasLIRC/raw/master/Resources/Case.jpg)
+
 5. Place the cover on the case.
 6. Admire your handy work!
 
@@ -99,9 +108,9 @@ We'll do some progressive tests now, working our way up to the actual control of
 
 At this point LIRC is now working.  How you interface with it is up to you!
 
-But wait.  There's more!  In HOWTO-WithOpenHab.md I'll explain how I interfaced this with OpenHab.
+But wait.  There's more!  In [HOWTO-WithOpenHab.md](https://github.com/mediamanrit/RasLIRC/blob/master/HOWTO-WithOpenHab.md) I'll explain how I interfaced this with OpenHab.
 
-There's also a troubleshooting guide, Troubleshooting.md, where I'll keep my notes and troubleshooting steps.
+There's also a troubleshooting guide, [Troubleshooting.md](https://github.com/mediamanrit/RasLIRC/blob/master/Troubleshooting.md), where I'll keep my notes and troubleshooting steps.
 
 
 
