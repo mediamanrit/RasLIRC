@@ -1,6 +1,7 @@
 # RasLIRC
 ## Table of Contents
   * Introduction & Background
+  * Short Version
   * Hardware
   * Initial OS Config
   * LIRC Config
@@ -18,6 +19,14 @@ This process will explain:
   * (Bonus) How to connect the devices to OpenHAB
  
 ---
+## Short Version
+
+If you want to get to the meat of this and skip the hardware and just use the Ansible Playbook, all you need is the RasLIRC-Wired.yaml file.  When you run it with Ansible, the only pre-req is that you are running Raspbian / Rasberry Pi OS version Bullseye, and that the Pi is on a network with Internet access.
+
+I strongly suggest you don't simply download and run the yaml file and hope for the best.  The configuration is specific to the wiring detailed below.  But if you want to jump right into it and figure it out from there, feel free.
+
+---
+
 ## Hardware
 
 ### Materials
