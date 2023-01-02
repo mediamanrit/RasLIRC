@@ -30,21 +30,124 @@
     - name: Work on lirc_options.conf (device)
       lineinfile:
         dest: /etc/lirc/lirc_options.conf
-        regexp: '^device.*= auto$'
-        line: 'device = /dev/lirc0'
+        regexp: '^device.*=.*$'
+        line: 'device = /dev/lirc-rx'
         backrefs: yes
     - name: Work on lirc_options.conf (driver)
       lineinfile:
         dest: /etc/lirc/lirc_options.conf
-        regexp: '^driver.*= devinput$'
+        regexp: '^driver.*=.*$'
         line: 'driver = default'
         backrefs: yes
     - name: Work on lirc_options.conf (listen)
       lineinfile:
         dest: /etc/lirc/lirc_options.conf
-        regexp: '^#listen.*=.*$'
+        regexp: '^.*listen.*=.*$'
+        line: 'listen = 0.0.0.0:8766'
+        backrefs: yes
+
+    - name: Create lirc_tx_options.conf
+      ansible.builtin.copy:
+        src: /etc/lirc/lirc_options.conf
+        dest: /etc/lirc/lirc_tx_options.conf
+    - name: Work on lirc_tx_options.conf (device)
+      lineinfile:
+        dest: /etc/lirc/lirc_tx_options.conf
+        regexp: '^device.*=.*$'
+        line: 'device = /dev/lirc-tx'
+        backrefs: yes
+    - name: Work on lirc_tx_options.conf (listen)
+      lineinfile:
+        dest: /etc/lirc/lirc_tx_options.conf
+        regexp: '^.*listen.*=.*$'
         line: 'listen = 0.0.0.0:8765'
         backrefs: yes
+    - name: Work on lirc_tx_options.conf (connect)
+      lineinfile:
+        dest: /etc/lirc/lirc_tx_options.conf
+        regexp: '^.*connect.*=.*$'
+        line: 'connect = 127.0.0.1:8766'
+        backrefs: yes
+    - name: Work on lirc_tx_options.conf (output)
+      lineinfile:
+        dest: /etc/lirc/lirc_tx_options.conf
+        regexp: '^.*output.*=.*$'
+        line: 'output = /var/run/lirc/lircd-tx'
+        backrefs: yes 
+    - name: Work on lirc_tx_options.conf (pidfile)
+      lineinfile:
+        dest: /etc/lirc/lirc_tx_options.conf
+        regexp: '^.*pidfile.*=.*$'
+        line: 'pidfile = /var/run/lirc/lircd-tx.pid'
+        backrefs: yes
+
+    - name: Get lircd service file
+      shell: /bin/systemctl cat lircd
+      register: lircdservice
+
+    - name: Create /etc/systemd/system/lircd-tx.service
+      copy:
+        dest: /etc/systemd/system/lircd-tx.service
+        content: "{{ lircdservice.stdout }}"
+
+    - name: Work on /etc/systemd/system/lircd-tx.service (Description)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.service
+        regexp: '^Description.*=.*$'
+        line: 'Description=Second lircd, the transmitter'
+        backrefs: yes
+    - name: Work on /etc/systemd/system/lircd-tx.service (Wants)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.service
+        regexp: '^Wants.*=.*$'
+        line: 'Wants=lircd-setup.service'
+        backrefs: yes
+    - name: Work on /etc/systemd/system/lircd-tx.service (After)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.service
+        regexp: '^After.*=.*$'
+        line: 'After=network.target lircd-setup.service lircd.service'
+        backrefs: yes
+    - name: Work on /etc/systemd/system/lircd-tx.service (ExecStart)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.service
+        regexp: '^ExecStart.*=.*$'
+        line: 'ExecStart=/usr/sbin/lircd --nodaemon --options-file /etc/lirc/lirc_tx_options.conf'
+        backrefs: yes
+
+    - name: Get lircd.socket service file
+      shell: /bin/systemctl cat lircd.socket
+      register: lircdsocketservice
+    - name: Create /etc/systemd/system/lircd-tx.socket
+      copy:
+        dest: /etc/systemd/system/lircd-tx.socket
+        content: "{{ lircdsocketservice.stdout }}"
+
+    - name: Work on /etc/systemd/system/lircd-tx.socket (ListenStream)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.socket
+        regexp: '^.*ListenStream.*=.*$'
+        line: 'ListenStream=/run/lirc/lircd-tx'
+        backrefs: yes
+    - name: Work on /etc/systemd/system/lircd-tx.socket (Also)
+      lineinfile:
+        dest: /etc/systemd/system/lircd-tx.socket
+        regexp: '^.*Also.*=.*$'
+        line: 'Also=lircd-tx.service'
+        backrefs: yes
+
+    - name: Configure dev rules - lirc-rx
+      lineinfile:
+        dest: /etc/udev/rules.d/71-lirc.rules
+        line: 'ACTION=="add", SUBSYSTEM=="lirc", DRIVERS=="gpio_ir_recv", SYMLINK+="lirc-rx"'
+        state: present
+        create: yes
+    - name: Configure dev rules - lirc-tx
+      lineinfile:
+        dest: /etc/udev/rules.d/71-lirc.rules
+        line: 'ACTION=="add", SUBSYSTEM=="lirc", DRIVERS=="gpio-ir-tx", SYMLINK+="lirc-tx"'
+        state: present
+        create: yes
 
     - name: Check if devinput config is enabled
       stat:
@@ -55,19 +158,45 @@
       command: /bin/mv /etc/lirc/lircd.conf.d/devinput.lircd.conf /etc/lirc/lircd.conf.d/devinput.lircd.conf.dist
       when: stat_result.stat.exists == True 
 
-    - name: Configure Boot (lirc config)
+    - name: Configure Boot (lirc config - rx)
       lineinfile:
         dest: /boot/config.txt
-        line: dtoverlay=lirc-rpi,gpio_in_pin=11,gpio_out_pin=25
+        line: 'dtoverlay=gpio-ir,gpio_pin=11'
+        state: present
+        create: yes
+    - name: Configure Boot (lirc config - tx)
+      lineinfile:
+        dest: /boot/config.txt
+        line: 'dtoverlay=gpio-ir-tx,gpio_pin=25'
         state: present
         create: yes
     - name: Configure Boot (disable wireless devices)
       lineinfile:
         dest: /boot/config.txt
-        line: dtoverlay=pi3-disable-wifi,pi3-disable-bt
+        line: 'dtoverlay=pi3-disable-wifi,pi3-disable-bt'
         state: present
         create: yes
 
+    - name: "Create a local irsend command pointing to the right dev for tx"
+      copy:
+        dest: /usr/local/bin/irsend
+        content: |
+          #! /bin/sh
+          exec /usr/bin/irsend --device=/var/run/lirc/lircd-tx "$@"
+    - name: Touch /usr/local/bin/irsend, but add/remove some permissions
+      ansible.builtin.file:
+        path: /usr/local/bin/irsend
+        state: touch
+        mode: u+x,g+x,o+x
+    
+    - name: Force systemd to reread configs
+      ansible.builtin.systemd:
+        daemon_reload: yes
+    - name: Enable lircd-tx
+      ansible.builtin.systemd:
+        enabled: true
+        name: lircd-tx
     - name: Reboot the server
       command: /sbin/reboot
+
 
